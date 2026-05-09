@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hello-brew-dev"
+version = "0.0.0"
+description = "Dev tooling root for hello-brew monorepo"
+requires-python = ">=3.12"
+
+[project.optional-dependencies]
+dev = [
+    "black>=24.0",
+    "ruff>=0.4",
+    "mypy>=1.10",
+    "pytest>=8.0",
+    "pytest-httpserver>=1.0",
+    "requests>=2.31",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.setuptools.packages.find]
+where = []
+include = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

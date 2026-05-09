@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+VERSION="__VERSION__"
+HOST="localhost"
+PORT="8100"
+VERBOSE=false
+
+usage() {
+    cat <<EOF
+Usage: demo-shell-client [OPTIONS]
+
+  Shell client for demo-server. Calls GET /health and prints the JSON response.
+
+Options:
+  --host HOST     Server host (default: localhost)
+  --port PORT     Server port (default: 8100)
+  --verbose       Enable verbose output
+  --version       Print version and exit
+  --help          Show this help message and exit
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --host)    HOST="$2";    shift 2 ;;
+        --port)    PORT="$2";    shift 2 ;;
+        --verbose) VERBOSE=true; shift   ;;
+        --version) echo "demo-shell-client ${VERSION}"; exit 0 ;;
+        --help)    usage; exit 0 ;;
+        *) echo "Unknown option: $1" >&2; usage >&2; exit 1 ;;
+    esac
+done
+
+URL="http://${HOST}:${PORT}/health"
+
+if [[ "${VERBOSE}" == true ]]; then
+    echo "GET ${URL}" >&2
+fi
+
+if ! command -v jq &>/dev/null; then
+    echo "Error: jq is required but not installed." >&2
+    exit 1
+fi
+
+curl --silent --fail --show-error "${URL}" | jq .

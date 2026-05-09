@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build server distribution
+        run: python -m build apps/server --outdir dist/
+
+      - name: Build python-client distribution
+        run: python -m build apps/python-client --outdir dist/
+
+      - name: Compute GitHub tarball SHA256
+        id: sha256
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          url="https://github.com/Sdaas/hello-brew/archive/refs/tags/${TAG}.tar.gz"
+          sha=$(curl -sL "$url" | shasum -a 256 | awk '{print $1}')
+          echo "sha256=${sha}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout tap repo
+        uses: actions/checkout@v4
+        with:
+          repository: Sdaas/homebrew-tap
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update formula
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          SHA256: ${{ steps.sha256.outputs.sha256 }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          FORMULA="homebrew-tap/Formula/brew-demo.rb"
+          # Update URL to new tag
+          sed -i '' "s|/tags/v[^/]*.tar.gz|/tags/${TAG}.tar.gz|g" "$FORMULA"
+          # Update sha256
+          sed -i '' "s/sha256 \"__SHA256__\"/sha256 \"${SHA256}\"/" "$FORMULA"
+          sed -i '' "s/sha256 \"[a-f0-9]\{64\}\"/sha256 \"${SHA256}\"/" "$FORMULA"
+
+      - name: Commit and push formula
+        working-directory: homebrew-tap
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/brew-demo.rb
+          git commit -m "brew-demo v${VERSION}"
+          git push
