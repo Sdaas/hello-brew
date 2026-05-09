@@ -9,6 +9,10 @@ if [[ ! -f "${VENV}/bin/python" ]]; then
     exit 1
 fi
 
+echo "[pre-push] Running shellcheck..."
+shellcheck "${REPO_ROOT}/apps/shell-client/bin/demo-shell-client"
+echo "[pre-push] shellcheck passed"
+
 echo "[pre-push] Running format check..."
 "${VENV}/bin/black" --check "${REPO_ROOT}/apps/" "${REPO_ROOT}/tests/"
 "${VENV}/bin/ruff" check "${REPO_ROOT}/apps/" "${REPO_ROOT}/tests/"
@@ -18,6 +22,6 @@ echo "[pre-push] Running type check..."
 "${VENV}/bin/mypy" "${REPO_ROOT}/apps/server/src" "${REPO_ROOT}/apps/python-client/src"
 echo "[pre-push] Type check passed"
 
-echo "[pre-push] Running all tests..."
-"${VENV}/bin/pytest" "${REPO_ROOT}/tests/" -q --tb=short
-echo "[pre-push] All tests passed"
+echo "[pre-push] Running integration tests..."
+"${VENV}/bin/pytest" "${REPO_ROOT}/tests/integration/" -q --tb=short
+echo "[pre-push] Integration tests passed"

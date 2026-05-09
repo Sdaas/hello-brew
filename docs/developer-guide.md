@@ -69,7 +69,7 @@ make hooks
 | Hook | When it runs | What it checks |
 |---|---|---|
 | `pre-commit` | Before every commit | Unit tests |
-| `pre-push` | Before every push | Format, type check, unit + integration tests |
+| `pre-push` | Before every push | shellcheck → format → type check → integration tests |
 
 ---
 
@@ -128,6 +128,58 @@ make test
 
 ---
 
+## Quality Gates
+
+Quality is enforced at three stages of the development workflow. Each stage adds checks appropriate to that point in the process.
+
+### Stage 1 — pre-commit (before every commit)
+
+Runs automatically on `git commit`. Must be fast.
+
+| Check | Tool | Command |
+|---|---|---|
+| Unit tests | pytest | `make test-unit` |
+
+If this fails, the commit is blocked. Fix the failing tests before committing.
+
+### Stage 2 — pre-push (before every push)
+
+Runs automatically on `git push`. Ordered cheapest-first so failures surface quickly.
+
+| Check | Tool | Command | Why here and not pre-commit |
+|---|---|---|---|
+| Shell script lint | shellcheck | `make shellcheck` | Fast, but rarely breaks on small commits |
+| Format + imports | black, ruff | `make lint` | Formatting drift is a push-time concern |
+| Type checking | mypy | `make typecheck` | Slower than unit tests |
+| Integration tests | pytest | `make test-integration` | Require a real server; too slow for every commit |
+
+Unit tests are intentionally excluded here — pre-commit already ran them.
+
+To run any of these manually:
+
+```bash
+make shellcheck
+make lint
+make typecheck
+make test-integration
+```
+
+### Stage 3 — release.sh (before tagging a release)
+
+These checks run after the formula is updated locally but before anything is pushed. They catch formula-level problems that only surface when Homebrew actually processes the file.
+
+| Check | Command | What it catches |
+|---|---|---|
+| Formula lint | `brew audit --strict` | DSL errors, policy violations, dependency ordering |
+| Formula style | `brew style` | RuboCop formatting issues |
+| Full install | `brew install --build-from-source` | Virtualenv build, missing resources, broken installs |
+| Formula tests | `brew test` | `test do` block — verifies installed binaries run and report the correct version |
+| Linkage check | `brew linkage` | Broken dynamic library references |
+
+If any of these fail, the release is aborted before any commits or tags are created.
+
+---
+
 ## Dependency Management
 
 Each app declares its own runtime deps in `pyproject.toml`. Dev deps (black, ruff, mypy, pytest, pytest-httpserver) live in the root `pyproject.toml`.
@@ -155,9 +207,10 @@ The script:
 5. Bumps version in all source files
 6. Builds Python distributions
 7. Updates the formula URL in `~/dev/homebrew-tap`
-8. Commits + tags + pushes source repo
-9. Commits + pushes tap repo
-10. The `release.yml` GitHub Action computes the tarball sha256 and updates the formula automatically
+8. Runs Homebrew formula quality gates: `brew audit --strict`, `brew style`, `brew install --build-from-source`, `brew test`, `brew linkage`
+9. Commits + tags + pushes source repo
+10. Commits + pushes tap repo
+11. The `release.yml` GitHub Action computes the tarball sha256 and updates the formula automatically
 
 ### Prerequisites: GitHub Secrets
 

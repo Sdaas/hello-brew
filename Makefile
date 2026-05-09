@@ -4,7 +4,7 @@ PYTHON         := python$(PYTHON_MINOR)
 VENV           := .venv
 BIN            := $(VENV)/bin
 
-.PHONY: install hooks fmt lint typecheck test-unit test-integration test clean
+.PHONY: install hooks fmt lint shellcheck typecheck test-unit test-integration test clean
 
 install: hooks
 	$(PYTHON) -m venv $(VENV)
@@ -26,6 +26,9 @@ fmt:
 lint:
 	$(BIN)/black --check apps/ tests/
 	$(BIN)/ruff check apps/ tests/
+
+shellcheck:
+	shellcheck apps/shell-client/bin/demo-shell-client
 
 typecheck:
 	$(BIN)/mypy apps/server/src apps/python-client/src

@@ -167,6 +167,28 @@ sed -i '' \
 
 ok "Formula updated to ${TAG} (python@${PYTHON_MINOR})"
 
+# ── brew formula quality gates ────────────────────────────────────────────
+
+step "brew audit --strict"
+brew audit --strict sdaas/tap/brew-demo
+ok "brew audit passed"
+
+step "brew style"
+brew style sdaas/tap/brew-demo
+ok "brew style passed"
+
+step "brew install --build-from-source"
+brew reinstall --build-from-source sdaas/tap/brew-demo
+ok "brew install passed"
+
+step "brew test"
+brew test sdaas/tap/brew-demo
+ok "brew test passed"
+
+step "brew linkage"
+brew linkage brew-demo
+ok "brew linkage passed"
+
 # ── commit version bumps in source repo ───────────────────────────────────
 
 step "Committing version bump in source repo"
