@@ -14,6 +14,8 @@ A reference-quality monorepo demonstrating how to build, test, package, and rele
 
 All three are installed by a single Homebrew formula: `sdaas/tap/brew-demo`.
 
+> **Note:** `demo-server` is intended for local development use only. It does not support TLS and should not be exposed to external networks.
+
 ---
 
 ## Architecture

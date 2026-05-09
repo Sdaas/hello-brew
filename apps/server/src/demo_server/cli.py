@@ -20,6 +20,11 @@ def build_parser(default_port: int) -> argparse.ArgumentParser:
         default=default_port,
         help=f"Port to listen on (default: {default_port}, from config file or 8100)",
     )
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host to bind to (default: 127.0.0.1)",
+    )
     parser.add_argument("--verbose", action="store_true", help="Enable debug logging")
     return parser
 
@@ -33,7 +38,7 @@ def main(argv: list[str] | None = None) -> None:
 
     uvicorn.run(
         "demo_server.main:app",
-        host="0.0.0.0",
+        host=args.host,
         port=args.port,
         log_level="debug" if args.verbose else "info",
         access_log=False,  # we handle request logging via middleware

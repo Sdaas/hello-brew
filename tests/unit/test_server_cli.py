@@ -25,6 +25,16 @@ def test_cli_port_overrides_config_default():
     assert args.port == 9999
 
 
+def test_host_default():
+    args = build_parser(DEFAULT_PORT).parse_args([])
+    assert args.host == "127.0.0.1"
+
+
+def test_host_override():
+    args = build_parser(DEFAULT_PORT).parse_args(["--host", "0.0.0.0"])
+    assert args.host == "0.0.0.0"
+
+
 def test_verbose_flag():
     args = build_parser(DEFAULT_PORT).parse_args(["--verbose"])
     assert args.verbose is True

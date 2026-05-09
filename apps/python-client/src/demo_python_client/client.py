@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any
 
 import requests
 
@@ -9,7 +10,9 @@ DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 8100
 
 
-def fetch_health(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT, timeout: int = 5) -> dict:  # type: ignore[type-arg]
+def fetch_health(
+    host: str = DEFAULT_HOST, port: int = DEFAULT_PORT, timeout: int = 5
+) -> dict[str, Any]:
     url = f"http://{host}:{port}/health"
     logger.debug("GET %s", url)
     response = requests.get(url, timeout=timeout)

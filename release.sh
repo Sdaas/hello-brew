@@ -17,6 +17,17 @@ ok()    { echo "  [ ok ]  $*"; }
 die()   { echo "  [FAIL]  $*" >&2; exit 1; }
 step()  { echo; echo "══ $* ══"; }
 
+cleanup() {
+    if [[ $? -ne 0 ]]; then
+        echo "  [FAIL]  Release failed. Resetting modified files..." >&2
+        git -C "${REPO_ROOT}" checkout -- \
+            apps/server/pyproject.toml \
+            apps/python-client/pyproject.toml \
+            apps/shell-client/bin/demo-shell-client
+    fi
+}
+trap cleanup EXIT
+
 # ── detect current version from git tags ─────────────────────────────────
 
 latest_tag=$(git -C "${REPO_ROOT}" describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")

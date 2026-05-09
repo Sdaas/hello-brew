@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from pathlib import Path
 
 
@@ -20,12 +21,13 @@ def setup_logging(verbose: bool = False, log_dir: str | None = None) -> None:
     os.makedirs(log_dir, exist_ok=True)
     log_file = os.path.join(log_dir, "demo-server.log")
 
+    handlers: list[logging.Handler] = [logging.FileHandler(log_file)]
+    if sys.stderr.isatty() or verbose:
+        handlers.append(logging.StreamHandler())
+
     logging.basicConfig(
         level=level,
         format="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
-        handlers=[
-            logging.FileHandler(log_file),
-            logging.StreamHandler(),
-        ],
+        handlers=handlers,
         force=True,
     )
