@@ -121,7 +121,7 @@ Each app declares its own runtime deps in `pyproject.toml`. Dev deps (black, ruf
 To add a dependency to an app:
 1. Add it to the app's `pyproject.toml` under `[project] dependencies`
 2. Run `.venv/bin/pip install -e "apps/<name>"` to install it
-3. Add the corresponding `resource` block to `~/dev/homebrew-tap/Formula/brew-demo.rb` with the PyPI URL and sha256
+3. Add the corresponding `resource` block to `~/dev/homebrewclau-tap/Formula/brew-demo.rb` with the PyPI URL and sha256
 
 ---
 
