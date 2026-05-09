@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+VENV="${REPO_ROOT}/.venv"
+
+if [[ ! -f "${VENV}/bin/python" ]]; then
+    echo "[pre-push] .venv not found — run 'make install' first"
+    exit 1
+fi
+
+echo "[pre-push] Running format check..."
+"${VENV}/bin/black" --check "${REPO_ROOT}/apps/" "${REPO_ROOT}/tests/"
+"${VENV}/bin/ruff" check "${REPO_ROOT}/apps/" "${REPO_ROOT}/tests/"
+echo "[pre-push] Format check passed"
+
+echo "[pre-push] Running type check..."
+"${VENV}/bin/mypy" "${REPO_ROOT}/apps/server/src" "${REPO_ROOT}/apps/python-client/src"
+echo "[pre-push] Type check passed"
+
+echo "[pre-push] Running all tests..."
+"${VENV}/bin/pytest" "${REPO_ROOT}/tests/" -q --tb=short
+echo "[pre-push] All tests passed"

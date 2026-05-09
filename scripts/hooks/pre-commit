@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+VENV="${REPO_ROOT}/.venv"
+
+if [[ ! -f "${VENV}/bin/python" ]]; then
+    echo "[pre-commit] .venv not found — run 'make install' first"
+    exit 1
+fi
+
+echo "[pre-commit] Running unit tests..."
+"${VENV}/bin/pytest" "${REPO_ROOT}/tests/unit/" -q --tb=short
+echo "[pre-commit] Unit tests passed"

@@ -4,14 +4,20 @@ PYTHON         := python$(PYTHON_MINOR)
 VENV           := .venv
 BIN            := $(VENV)/bin
 
-.PHONY: install fmt lint typecheck test-unit test-integration test clean
+.PHONY: install hooks fmt lint typecheck test-unit test-integration test clean
 
-install:
+install: hooks
 	$(PYTHON) -m venv $(VENV)
 	$(BIN)/pip install --upgrade pip
 	$(BIN)/pip install -e ".[dev]"
 	$(BIN)/pip install -e "apps/server[dev]"
 	$(BIN)/pip install -e "apps/python-client[dev]"
+
+hooks:
+	cp scripts/hooks/pre-commit .git/hooks/pre-commit
+	cp scripts/hooks/pre-push .git/hooks/pre-push
+	chmod +x .git/hooks/pre-commit .git/hooks/pre-push
+	@echo "Git hooks installed"
 
 fmt:
 	$(BIN)/black apps/ tests/

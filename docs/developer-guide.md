@@ -50,12 +50,26 @@ make install            # creates .venv and installs all packages in editable mo
 ```
 
 `make install` runs:
-1. `python -m venv .venv`
-2. `pip install -e ".[dev]"` — installs dev tools
-3. `pip install -e "apps/server[dev]"` — editable server install
-4. `pip install -e "apps/python-client"` — editable client install
+1. Installs git hooks from `scripts/hooks/` into `.git/hooks/`
+2. `python -m venv .venv`
+3. `pip install -e ".[dev]"` — installs dev tools
+4. `pip install -e "apps/server[dev]"` — editable server install
+5. `pip install -e "apps/python-client"` — editable client install
 
 All binaries resolve to repo-local code. Running `demo-server` (if activated) uses the editable install, not any globally installed version.
+
+### Git Hooks
+
+Hooks are stored in `scripts/hooks/` (tracked in git) and installed automatically by `make install`. To reinstall them without a full setup:
+
+```bash
+make hooks
+```
+
+| Hook | When it runs | What it checks |
+|---|---|---|
+| `pre-commit` | Before every commit | Unit tests |
+| `pre-push` | Before every push | Format, type check, unit + integration tests |
 
 ---
 
