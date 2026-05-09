@@ -145,6 +145,25 @@ The script:
 9. Commits + pushes tap repo
 10. The `release.yml` GitHub Action computes the tarball sha256 and updates the formula automatically
 
+### Prerequisites: GitHub Secrets
+
+The `release.yml` Action checks out and pushes to the `Sdaas/homebrew-tap` repo. It authenticates using a personal access token stored as a repository secret. This must be configured once before the first release:
+
+1. **Create a personal access token** at https://github.com/settings/tokens
+   - Click "Generate new token" → "Generate new token (classic)"
+   - Name: e.g. `homebrew-tap access`
+   - Scopes: check `repo` (full control of private repositories)
+   - Click "Generate token" and copy the value
+
+2. **Add it as a repository secret** in `Sdaas/hello-brew`:
+   - Go to Settings → Secrets and variables → Actions → **Secrets** tab
+   - Click "New repository secret"
+   - Name: `TAP_GITHUB_TOKEN`
+   - Value: paste the token
+   - Click "Add secret"
+
+Without this secret the Action will fail and the formula sha256 will not be updated, causing `brew install` to fail.
+
 ---
 
 ## Debugging Tips
