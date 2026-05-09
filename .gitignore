@@ -25,6 +25,9 @@ logs/
 htmlcov/
 .coverage
 
+# Claude Code
+.claude/
+
 # macOS
 .DS_Store
 
