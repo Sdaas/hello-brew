@@ -11,11 +11,12 @@ requires-python = ">=3.12"
 [project.optional-dependencies]
 dev = [
     "black>=24.0",
-    "ruff>=0.4",
+    "build>=1.0",
     "mypy>=1.10",
     "pytest>=8.0",
     "pytest-httpserver>=1.0",
     "requests>=2.31",
+    "ruff>=0.4",
 ]
 
 [tool.black]
