@@ -7,6 +7,9 @@ TAP_DIR="${HOME}/dev/homebrew-tap"
 FORMULA="${TAP_DIR}/Formula/brew-demo.rb"
 GITHUB_SOURCE="https://github.com/Sdaas/hello-brew"
 
+# Derive Python minor version (e.g. "3.12") from .python-version
+PYTHON_MINOR="$(cut -d. -f1,2 < "${REPO_ROOT}/.python-version")"
+
 # ── helpers ───────────────────────────────────────────────────────────────
 
 info()  { echo "  [info]  $*"; }
@@ -98,16 +101,13 @@ ok "Integration tests passed"
 
 step "Bumping version to ${VERSION}"
 
-bump_version() {
+bump_pyproject() {
     local file="$1"
     sed -i '' "s/^version = \"[^\"]*\"/version = \"${VERSION}\"/" "${file}"
-    sed -i '' "s/^__version__ = \"[^\"]*\"/__version__ = \"${VERSION}\"/" "${file}" 2>/dev/null || true
 }
 
-bump_version "${REPO_ROOT}/apps/server/pyproject.toml"
-bump_version "${REPO_ROOT}/apps/server/src/demo_server/__init__.py"
-bump_version "${REPO_ROOT}/apps/python-client/pyproject.toml"
-bump_version "${REPO_ROOT}/apps/python-client/src/demo_python_client/__init__.py"
+bump_pyproject "${REPO_ROOT}/apps/server/pyproject.toml"
+bump_pyproject "${REPO_ROOT}/apps/python-client/pyproject.toml"
 
 # Stamp version into shell client
 sed -i '' "s/VERSION=\"__VERSION__\"/VERSION=\"${VERSION}\"/" \
@@ -146,16 +146,22 @@ sed -i '' \
     "s/__VERSION__/${VERSION}/g" \
     "${FORMULA}"
 
-ok "Formula URL updated to ${TAG}"
+# Sync python version from .python-version
+sed -i '' \
+    "s/depends_on \"python@[0-9.]*\"/depends_on \"python@${PYTHON_MINOR}\"/" \
+    "${FORMULA}"
+sed -i '' \
+    "s/virtualenv_create(libexec, \"python[0-9.]*\")/virtualenv_create(libexec, \"python${PYTHON_MINOR}\")/" \
+    "${FORMULA}"
+
+ok "Formula updated to ${TAG} (python@${PYTHON_MINOR})"
 
 # ── commit version bumps in source repo ───────────────────────────────────
 
 step "Committing version bump in source repo"
 git -C "${REPO_ROOT}" add \
     apps/server/pyproject.toml \
-    apps/server/src/demo_server/__init__.py \
     apps/python-client/pyproject.toml \
-    apps/python-client/src/demo_python_client/__init__.py \
     apps/shell-client/bin/demo-shell-client
 
 git -C "${REPO_ROOT}" commit -m "chore: release ${TAG}"

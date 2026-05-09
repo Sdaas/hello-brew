@@ -1,6 +1,8 @@
-PYTHON := python
-VENV   := .venv
-BIN    := $(VENV)/bin
+PYTHON_VERSION := $(shell cat .python-version | tr -d '[:space:]')
+PYTHON_MINOR   := $(shell cat .python-version | cut -d. -f1,2)
+PYTHON         := python$(PYTHON_MINOR)
+VENV           := .venv
+BIN            := $(VENV)/bin
 
 .PHONY: install fmt lint typecheck test-unit test-integration test clean
 
