@@ -1,4 +1,5 @@
 import pytest
+from demo_python_client import __version__
 from demo_python_client.cli import DEFAULT_HOST, DEFAULT_PORT, build_parser
 
 
@@ -29,4 +30,4 @@ def test_version_exits(capsys):
         build_parser().parse_args(["--version"])
     assert exc.value.code == 0
     captured = capsys.readouterr()
-    assert "0.1.0" in captured.out
+    assert __version__ in captured.out
