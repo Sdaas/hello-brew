@@ -55,9 +55,9 @@ jobs:
           FORMULA="homebrew-tap/Formula/brew-demo.rb"
           # Update URL to new tag
           sed -i '' "s|/tags/v[^/]*.tar.gz|/tags/${TAG}.tar.gz|g" "$FORMULA"
-          # Update sha256
-          sed -i '' "s/sha256 \"__SHA256__\"/sha256 \"${SHA256}\"/" "$FORMULA"
-          sed -i '' "s/sha256 \"[a-f0-9]\{64\}\"/sha256 \"${SHA256}\"/" "$FORMULA"
+          # Update the formula-level sha256 only (the line immediately after the GitHub source URL).
+          # The broad pattern is intentionally avoided to prevent overwriting resource sha256s.
+          sed -i '' '/github\.com.*\.tar\.gz/{n;s/sha256 ".*"/sha256 "'"${SHA256}"'"/;}' "$FORMULA"
 
       - name: Commit and push formula
         working-directory: homebrew-tap
