@@ -75,6 +75,10 @@ if [[ -n "$(git -C "${REPO_ROOT}" status --porcelain)" ]]; then
 fi
 ok "Working tree is clean"
 
+step "Syncing tap repo"
+git -C "${TAP_DIR}" pull --rebase origin main
+ok "Tap repo up to date"
+
 if git -C "${REPO_ROOT}" tag | grep -qx "${TAG}"; then
     die "Tag ${TAG} already exists"
 fi
