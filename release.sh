@@ -178,7 +178,10 @@ brew style sdaas/tap/brew-demo
 ok "brew style passed"
 
 step "brew install --build-from-source"
-brew reinstall --build-from-source sdaas/tap/brew-demo
+# HOMEBREW_NO_ENV_HINTS suppresses a spurious Homebrew bug: it incorrectly
+# reports Xcode 16.4 as outdated on macOS 15 (groups macOS "15" with "26").
+# Xcode 16.4 is the correct version for macOS 15.5.
+HOMEBREW_NO_ENV_HINTS=1 brew reinstall --build-from-source sdaas/tap/brew-demo
 ok "brew install passed"
 
 step "brew test"
