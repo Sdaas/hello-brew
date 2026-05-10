@@ -61,6 +61,8 @@ demo-server --verbose
 # Start as a Homebrew service
 brew services start brew-demo
 
+# Logs are written to /opt/homebrew/var/log/demo-server.log
+
 # Stop
 brew services stop brew-demo
 

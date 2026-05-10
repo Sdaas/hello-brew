@@ -24,6 +24,8 @@ cleanup() {
             apps/server/pyproject.toml \
             apps/python-client/pyproject.toml \
             apps/shell-client/bin/demo-shell-client
+        # Reset the tap formula so a re-run starts clean
+        git -C "${TAP_DIR}" checkout -- Formula/brew-demo.rb 2>/dev/null || true
     fi
 }
 trap cleanup EXIT
@@ -213,7 +215,11 @@ ok "Source repo pushed"
 
 step "Committing formula update in tap repo"
 git -C "${TAP_DIR}" add Formula/brew-demo.rb
-git -C "${TAP_DIR}" commit -m "brew-demo ${TAG}"
+if git -C "${TAP_DIR}" diff --cached --quiet; then
+    info "Formula already committed (e.g. by GitHub Action) — skipping commit"
+else
+    git -C "${TAP_DIR}" commit -m "brew-demo ${TAG}"
+fi
 
 step "Pushing tap repo"
 git -C "${TAP_DIR}" push origin main
