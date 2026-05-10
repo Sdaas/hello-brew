@@ -186,6 +186,11 @@ step "brew install --build-from-source"
 HOMEBREW_NO_ENV_HINTS=1 brew reinstall --build-from-source sdaas/tap/brew-demo
 ok "brew install passed"
 
+step "import check (dependency completeness)"
+brew_python="$(brew --cellar brew-demo)/${VERSION}/libexec/bin/python"
+"${brew_python}" -c "import demo_server, demo_python_client, fastapi, uvicorn, requests"
+ok "import check passed"
+
 step "brew test"
 brew test sdaas/tap/brew-demo
 ok "brew test passed"
