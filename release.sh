@@ -184,14 +184,13 @@ brew style sdaas/tap/brew-demo
 ok "brew style passed"
 
 step "brew install --build-from-source"
-# HOMEBREW_NO_ENV_HINTS suppresses a spurious Homebrew bug: it incorrectly
-# reports Xcode 16.4 as outdated on macOS 15 (groups macOS "15" with "26").
-# Xcode 16.4 is the correct version for macOS 15.5.
+# HOMEBREW_NO_ENV_HINTS suppresses hints about unset HOMEBREW_* env vars.
 HOMEBREW_NO_ENV_HINTS=1 brew reinstall --build-from-source sdaas/tap/brew-demo
 ok "brew install passed"
 
 step "import check (dependency completeness)"
-brew_python="$(brew --cellar brew-demo)/${VERSION}/libexec/bin/python"
+# Use brew --prefix (the opt symlink) so this works regardless of installed version.
+brew_python="$(brew --prefix brew-demo)/libexec/bin/python"
 "${brew_python}" -c "import demo_server, demo_python_client, fastapi, uvicorn, requests"
 ok "import check passed"
 
